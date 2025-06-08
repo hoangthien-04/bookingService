@@ -7,6 +7,7 @@ const businessSchema = new Schema(
     name: { type: String, required: true },
     logo: {
       type: String,
+      default: "https://res.cloudinary.com/dv9yzzjgg/image/upload/v1749205277/logo_default_mzji5s.png",
     },
     description: {
       type: String,
@@ -28,6 +29,11 @@ const businessSchema = new Schema(
 // Indexes
 businessSchema.index({ name: 1 });
 businessSchema.index({ email: 1 });
+
+businessSchema.plugin(mongoose_delete, {
+  deletedAt: true,
+  overrideMethods: "all",
+});
 
 const Business = mongoose.model("Business", businessSchema);
 
