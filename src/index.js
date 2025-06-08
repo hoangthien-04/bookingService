@@ -4,6 +4,9 @@ import cookieParser from "cookie-parser";
 import connectDB from "./configs/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import businessRoutes from "./routes/businessRoutes.js";
+import userRoutes from "./routes/userRoute.js"
+import staffRoutes from "./routes/staffRoute.js"
+import serviceCategoryRoute from "./routes/serviceCategoryRoute.js"
 
 dotenv.config();
 
@@ -28,7 +31,10 @@ connectDB().catch((err) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use('/api/user', userRoutes);
 app.use("/api/business", businessRoutes); 
+app.use('/api/staff', staffRoutes);
+app.use('/api/serviceCategory', serviceCategoryRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

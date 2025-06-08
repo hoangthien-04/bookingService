@@ -1,48 +1,54 @@
-import userService from "../services/userService.js";
+import authService from '../services/authService.js';
+
+const login = async (req, res) => {
+    const { username, password } = req.body;
+    try {
+      const { accessToken, refreshToken } = await authService.loginService(username, password);
+      res.json({ accessToken, refreshToken });
+    } catch (error) {
+      res.status(500).json({ message: 'Something went wrong', error: error.message });
+    }
+  }
+
+const refreshToken = async (req, res) => {
+    const { refreshToken } = req.body;
+    try {
+      const { newAccessToken } = await authService.refreshTokenService(refreshToken);
+      res.json({ newAccessToken });
+    } catch (error) {
+      res.status(403).json({ message: 'Invalid refresh token', error: error.message });
+    }
+  }
+
+const logout = async (req, res) => {
+    const { accessToken, refreshToken } = req.body;
+    try {
+      if (!refreshToken) {
+        return res.status(400).json({ message: 'Refresh token is required' });
+      }
+
+      await authService.logoutService(accessToken, refreshToken);
+      return res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Logout failed', error: error.message });
+    }
+  }
 
 const registerUser = async (req, res) => {
   try {
-    // Chuẩn bị dữ liệu để tạo user
-    const {
-      username,
-      password,
-      firstName,
-      lastName,
-      email,
-      phone,
-      dob,
-      address: { country, city, district, specifict } = {},
-    } = req.body;
-
-    // Đưa vào service
-    const userData = {
-      username,
-      password, // Lưu nguyên, không hash      firstName,
-      lastName,
-      email,
-      phone,
-      dob: dob ? new Date(dob) : undefined,
-      address: {
-        country: country || "",
-        city: city || "",
-        district: district || "",
-        specifict: specifict || "",
-      },
-    };
-
-    const createdUser = await userService.createUser(userData);
-
-    return res.status(201).json({
-      message: "Đăng ký thành công",
-      user: createdUser,
-    });
-  } catch (err) {
-    console.error("Lỗi ở controller.registerUser:", err);
-    const status = err.statusCode || 500;
-    const message =
-      err.statusCode === 409 ? err.message : "Lỗi server khi đăng ký user.";
-    return res.status(status).json({ message });
+    const user = await authService.createUser(req.body);
+    return res.status(201).json({ user: { id: user._id, username: user.username }});
+  }
+  catch (error) {
+    return res.status(500).json({ message: 'Error register user', error: error.message });
   }
 };
 
-export default { registerUser };
+const authController = {
+  login,
+  refreshToken,
+  logout,
+  registerUser,
+};
+
+export default authController;

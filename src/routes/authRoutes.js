@@ -1,11 +1,13 @@
-// routes/authRoutes.js
-import express from "express";
+import express from 'express';
+import authController from '../controllers/authController.js'; // Import Controller
+import authMiddleware from '../middlewares/authMiddleware.js';
+
 const router = express.Router();
 
-import validateRegister from "../middlewares/validateRegister.js";
-import authController from "../controllers/authController.js";
+router.post('/login', authController.login);
+router.post('/token', authMiddleware.authenticateToken, authController.refreshToken);
+router.post('/logout', authMiddleware.authenticateToken, authController.logout);
 
-// POST /api/auth/register → first chạy validateRegister, sau đó vào controller.registerUser
-router.post("/register", validateRegister, authController.registerUser);
+router.post('/register', authController.registerUser);
 
 export default router;
