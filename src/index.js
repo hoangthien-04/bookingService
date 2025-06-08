@@ -2,6 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoute.js"
+import staffRoutes from "./routes/staffRoute.js"
+import serviceCategoryRoute from "./routes/serviceCategoryRoute.js"
 
 
 dotenv.config();
@@ -15,7 +18,10 @@ connectDB().catch((err) => {
 });
 
 // Routes
-app.use("/api/auth", authRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/serviceCategory', serviceCategoryRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

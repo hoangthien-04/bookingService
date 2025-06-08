@@ -20,7 +20,11 @@ const businessSchema = new Schema(
       type: String,
       required: true,
     },
-    location: [],
+    locations: [
+      {
+        loactionId: { type: mongoose.Schema.Types.ObjectId, ref: "Location"}
+      }
+    ],
   },
   { timestamps: true }
 );
@@ -28,6 +32,12 @@ const businessSchema = new Schema(
 // Indexes
 businessSchema.index({ name: 1 });
 businessSchema.index({ email: 1 });
+businessSchema.index({ "location.loactionId": 1 });
+
+businessSchema.plugin(mongoose_delete, {
+  deletedAt: true,
+  overrideMethods: "all",
+});
 
 const Business = mongoose.model("Business", businessSchema);
 

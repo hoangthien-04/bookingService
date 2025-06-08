@@ -1,26 +1,34 @@
 import jwt from 'jsonwebtoken';
+import redisClient from '../services/redisClient.js';
 
-const protect = (req, res, next) => {
-  let token;
-
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
-  }
+const authenticateToken = async (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader?.split(' ')[1];  // Lấy token từ header
 
   if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+    return res.sendStatus(401);  // Nếu không có token, trả về 401 (Unauthorized)
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.id;
-    next();
+    const isBlacklisted = await redisClient.sIsMember('blacklist', token);
+    if (isBlacklisted) {
+      return res.status(401).json({ message: 'Token has been revoked (logged out)' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.sendStatus(403);
+      }
+      req.user = user;
+      next(); 
+    });
   } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-export { protect };
+const authMiddleware = {
+  authenticateToken,
+};
+
+export default authMiddleware

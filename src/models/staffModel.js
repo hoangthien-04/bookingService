@@ -23,12 +23,6 @@ const staffSchema = new Schema(
         experience: { type: Number },
       },
     ],
-    location: [
-      {
-        locationId: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
-        dateOfWeek: [{ type: String }],
-      },
-    ],
     favoriteCount: { type: Number, default: 0 },
   },
   { timestamps: true }

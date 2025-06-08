@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "initdb": "node scripts/initDB.js",
+    "initdb": "node src/scripts/initDB.js",
     "start": "nodemon --exec babel-node src/index.js"
   },
   "keywords": [],
@@ -30,7 +30,7 @@
     "multer": "^2.0.1",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.3",
-    "redis": "^5.5.5"
+    "redis": "^5.5.6"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
