@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import mongoose_delete from "mongoose-delete";  
+import mongoose_delete from "mongoose-delete";
 const { Schema } = mongoose;
 
 const locationSchema = new Schema(
@@ -7,6 +7,12 @@ const locationSchema = new Schema(
     image: {
       type: String,
     },
+    phone: {
+      type: String,
+      required: true,
+      maxlength: 20,
+    },
+    name: { type: String, required: true },
     address: {
       country: {
         type: String,
