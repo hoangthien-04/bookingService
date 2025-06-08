@@ -5,7 +5,9 @@ const { Schema } = mongoose;
 const serviceCategorySchema = new Schema(
   {
     name: { type: String, required: true },
-    image: [ String ],
+    image: {
+      type: String,
+    },
     services: [
         {
             serviceId: { type: mongoose.Schema.Types.ObjectId, ref: "Service" }
