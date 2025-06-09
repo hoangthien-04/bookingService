@@ -47,17 +47,10 @@ const refreshToken = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-<<<<<<< HEAD
-  try {
-    const { refreshToken } = req.cookies;
-    const { accessToken } = req.body;
-    const userId = req.user.id;
-=======
     try {
       const { refreshToken } = req.cookies;
       const accessToken = req.token;
       const userId = req.user.id;
->>>>>>> 7ebc9d9 (done demo)
 
     if (!refreshToken) {
       return res.status(400).json({ message: "Refresh token is required" });
