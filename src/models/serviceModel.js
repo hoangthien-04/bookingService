@@ -8,6 +8,11 @@ const serviceSchema = new Schema(
     image: {
       type: String,
     },
+    serviceCategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ServiceCategory",
+      required: true,
+    },
     time: { type: Number, required: true },
     serviceCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: "ServiceCategory" }
   },

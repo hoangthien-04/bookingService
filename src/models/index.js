@@ -7,9 +7,8 @@ import service from './serviceModel.js';
 import review from './reviewModel.js';  
 import location from './locationModel.js';
 import favorite from './favoriteModel.js';
-import businewss from './businessModel.js';
+import business from './businessModel.js';
 import appointment from './appointmentModel.js';
-
 
 const models = {
   user,
@@ -21,8 +20,8 @@ const models = {
   review,
   location,
   favorite,
-  businewss,
-  appointment
+  business,
+  apointment
 };
 
 export default models;
