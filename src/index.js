@@ -12,6 +12,7 @@ import serviceRoute from './routes/serviceRoute.js'
 import favoriteRoute from './routes/favoriteRoute.js'
 import appointment from './routes/appointmentRoute.js'
 import review from './routes/reviewRoute.js'
+import country from "./routes/countryRoute.js";
 
 dotenv.config();
 
@@ -34,9 +35,10 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/serviceCategory', serviceCategoryRoute);
 app.use('/api/service', serviceRoute);
-app.use('/api/favorite', favoriteRoute)
-app.use('/api/appointment', appointment)
-app.use('/api/review', review)
+app.use('/api/favorite', favoriteRoute);
+app.use('/api/appointment', appointment);
+app.use('/api/review', review);
+app.use('/api/country', country);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

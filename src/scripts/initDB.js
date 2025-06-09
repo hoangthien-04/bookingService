@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import connectDB from '../config/db.js';
+import connectDB  from '../configs/db.js'
 
 // Import tất cả Model
 import User from '../models/userModel.js';
