@@ -24,6 +24,14 @@ const appointmentSchema = new Schema(
       ref: "Location",
       required: true,
     },
+    startTime: {
+      type: Date,
+      required: true,
+    },
+    endTime: {
+      type: Date,
+      required: true,
+    },
   },
   { timestamps: true }
 );
