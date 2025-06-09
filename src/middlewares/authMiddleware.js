@@ -45,9 +45,21 @@ const authenticateOptional = (req, res, next) => {
   });
 };
 
+const verifyRefreshToken = (req, res, next) => {
+  const token = req.cookies.refreshToken;
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
+    if (err) return res.sendStatus(403);
+    req.user = payload;  // { id, username}
+    next();
+  });
+};
+
 const authMiddleware = {
   authenticateToken,
-  authenticateOptional
+  authenticateOptional,
+  verifyRefreshToken
 };
 
 export default authMiddleware

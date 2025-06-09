@@ -35,25 +35,44 @@ const loginService = async (username, password) => {
     return { accessToken, refreshToken };
 };
 
-const refreshTokenService = async (refreshToken) => {
-  const userData = await redisClient.get(refreshToken);
-  if (!userData) throw new Error('Invalid refresh token');
+const refreshTokenService = async (refreshToken, userId) => {
+  try {
+    const stored = await redisClient.get(refreshToken);
+    if (!stored) {
+      throw new Error('Refresh token không tồn tại hoặc đã hết hạn');
+    }
 
-  const user = JSON.parse(userData);
-  const newAccessToken = generateAccessToken(user);
+    const user = JSON.parse(stored);
+    if(user._id != userId) {
+      throw new Error('Token không thuộc về user');
+    }
 
-  return { newAccessToken };
+    const newAccessToken = generateAccessToken(user)
+
+    return { newAccessToken }; 
+  } catch (error) {
+    throw new Error(`Error refrestoken: ${error.message}`);
+  }
 };
 
-const logoutService = async (accessToken, refreshToken) => {
+const logoutService = async (accessToken, refreshToken, userId) => {
   try {
+    const stored = await redisClient.get(refreshToken);
+    if (!stored) {
+      throw new Error('Refresh token không tồn tại hoặc đã hết hạn');
+    }
+
+    if(JSON.parse(stored)._id != userId) {
+      throw new Error('Token không thuộc về user');
+    }
+
     await redisClient.sAdd('blacklist', accessToken);
     
     await redisClient.del(refreshToken);
 
     return; 
   } catch (error) {
-    throw new Error('Error while logging out');
+    throw new Error(`Error while logging out: ${error.message}`);
   }
 }; 
 

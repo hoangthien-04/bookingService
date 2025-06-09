@@ -1,19 +1,32 @@
 import authService from '../services/authService.js';
 
 const login = async (req, res) => {
-    const { username, password } = req.body;
     try {
+      const { username, password } = req.body;
       const { accessToken, refreshToken } = await authService.loginService(username, password);
-      res.json({ accessToken, refreshToken });
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,                      // không cho JS frontend truy cập
+        secure: process.env.NODE_ENV === 'production', // chỉ gửi qua HTTPS
+        sameSite: 'Strict',                  // hoặc 'Lax' tuỳ policy
+        path: '/api/auth/refresh-token',     // chỉ gửi khi gọi endpoint này
+        maxAge: 7 * 24 * 60 * 60 * 1000      // 7 ngày (ms)
+      });
+
+      res.json({ accessToken });
     } catch (error) {
       res.status(500).json({ message: 'Something went wrong', error: error.message });
     }
   }
 
 const refreshToken = async (req, res) => {
-    const { refreshToken } = req.body;
     try {
-      const { newAccessToken } = await authService.refreshTokenService(refreshToken);
+      const { refreshToken } = req.cookies;
+      const userId = req.user.id;
+
+      if (!refreshToken) throw new Error('No refresh token');
+
+      const { newAccessToken } = await authService.refreshTokenService(refreshToken, userId);
       res.json({ newAccessToken });
     } catch (error) {
       res.status(403).json({ message: 'Invalid refresh token', error: error.message });
@@ -21,13 +34,25 @@ const refreshToken = async (req, res) => {
   }
 
 const logout = async (req, res) => {
-    const { accessToken, refreshToken } = req.body;
     try {
+      const { refreshToken } = req.cookies;
+      const { accessToken } = req.body;
+      const userId = req.user.id;
+
       if (!refreshToken) {
         return res.status(400).json({ message: 'Refresh token is required' });
       }
 
-      await authService.logoutService(accessToken, refreshToken);
+      await authService.logoutService(accessToken, refreshToken, userId);
+
+      // Xoá cookie trên trình duyệt
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+        path: '/api/auth/refresh-token'
+      });
+
       return res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Logout failed', error: error.message });
