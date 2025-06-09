@@ -20,6 +20,9 @@ const locationSchema = new Schema(
       city: {
         type: String,
       },
+      cityCode: {
+        type: String,
+      },
       district: {
         type: String,
       },
