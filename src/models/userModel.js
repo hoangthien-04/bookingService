@@ -10,6 +10,11 @@ const userSchema = new Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true, maxlength: 100 },
     phone: { type: String, required: true, maxlength: 20 },
+    image: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/dv9yzzjgg/image/upload/v1749205277/logo_default_mzji5s.png",
+    },
     dob: { type: Date },
     address: {
       country: String,
