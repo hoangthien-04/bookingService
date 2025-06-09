@@ -8,7 +8,6 @@ const login = async (req, res) => {
       password
     );
 
-<<<<<<< HEAD
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -22,19 +21,6 @@ const login = async (req, res) => {
     res
       .status(500)
       .json({ message: "Something went wrong", error: error.message });
-=======
-        res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,                      // không cho JS frontend truy cập
-          secure: process.env.NODE_ENV === 'production', // chỉ gửi qua HTTPS
-          sameSite: 'Strict',                  // hoặc 'Lax' tuỳ policy
-          path: '/api/auth/',     // chỉ gửi khi gọi endpoint này
-          maxAge: 7 * 24 * 60 * 60 * 1000      // 7 ngày (ms)
-        });
-      res.status(200).json({ mesage: accessToken });
-    } catch (error) {
-      res.status(500).json({ message: 'Something went wrong', error: error.message });
-    }
->>>>>>> 7ebc9d9 (done demo)
   }
 };
 
