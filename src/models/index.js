@@ -21,7 +21,7 @@ const models = {
   location,
   favorite,
   business,
-  apointment
+  appointment
 };
 
 export default models;
