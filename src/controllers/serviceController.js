@@ -14,7 +14,7 @@ const createService = async (req, res) => {
 
 const getPopularService = async (req, res) => {
   try {
-    const cityCode = req.query.cityName;
+    const cityCode = req.query.cityCode; // Default to "VN-SG" if not provided
     const polularServices = await serviceService.getPopularService(cityCode);
 
     if (

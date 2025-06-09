@@ -31,7 +31,7 @@ const createServiceService = async (serviceData) => {
 };
 
 const getPopularService = async (
-  cityCode = "Ho Chi Minh",
+  cityCode = "VN-SG",
   pageNo = 1,
   pageSize = 20
 ) => {
@@ -39,7 +39,7 @@ const getPopularService = async (
   console.log("Fetching popular services for city:", cityCode);
 
   const popularServices = await model.location.aggregate([
-    { $match: { "address.city": cityCode } },
+    { $match: { "address.cityCode": cityCode } },
     { $unwind: "$services" },
     {
       $lookup: {
