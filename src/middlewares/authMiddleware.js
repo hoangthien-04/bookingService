@@ -27,8 +27,27 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
+const authenticateOptional = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) return next();         // Không có token → bỏ qua
+
+  const token = authHeader.split(' ')[1];
+  if (!token) return next();
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      // Token lỗi → vẫn bỏ qua, không trả 401
+      return next();
+    }
+    // Gán req.user để controller biết ai đang login
+    req.user = user;
+    next();
+  });
+};
+
 const authMiddleware = {
   authenticateToken,
+  authenticateOptional
 };
 
 export default authMiddleware

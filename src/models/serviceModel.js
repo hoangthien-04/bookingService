@@ -9,6 +9,7 @@ const serviceSchema = new Schema(
       type: String,
     },
     time: { type: Number, required: true },
+    serviceCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: "ServiceCategory" }
   },
   { timestamps: true }
 );

@@ -8,7 +8,7 @@ import review from './reviewModel.js';
 import location from './locationModel.js';
 import favorite from './favoriteModel.js';
 import businewss from './businessModel.js';
-import apointment from './favoriteModel.js';
+import appointment from './appointmentModel.js';
 
 
 const models = {
@@ -22,7 +22,7 @@ const models = {
   location,
   favorite,
   businewss,
-  apointment
+  appointment
 };
 
 export default models;

@@ -6,7 +6,12 @@ import authRoutes from "./routes/authRoutes.js";
 import businessRoutes from "./routes/businessRoutes.js";
 import userRoutes from "./routes/userRoute.js"
 import staffRoutes from "./routes/staffRoute.js"
+import locationRoutes from "./routes/locationRoute.js"
 import serviceCategoryRoute from "./routes/serviceCategoryRoute.js"
+import serviceRoute from './routes/serviceRoute.js'
+import favoriteRoute from './routes/favoriteRoute.js'
+import appointment from './routes/appointmentRoute.js'
+import review from './routes/reviewRoute.js'
 
 dotenv.config();
 
@@ -34,7 +39,12 @@ app.use("/api/auth", authRoutes);
 app.use('/api/user', userRoutes);
 app.use("/api/business", businessRoutes); 
 app.use('/api/staff', staffRoutes);
+app.use('/api/location', locationRoutes);
 app.use('/api/serviceCategory', serviceCategoryRoute);
+app.use('/api/service', serviceRoute);
+app.use('/api/favorite', favoriteRoute)
+app.use('/api/appointment', appointment)
+app.use('/api/review', review)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
