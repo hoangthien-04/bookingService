@@ -9,7 +9,7 @@ const favoriteSchema = new Schema(
       required: true,
       ref: "User",
     },
-    subType: { type: String, required: true },
+    subType: { type: String, required: true, enum: ["staff", "location"] },
     subId: { type: mongoose.Schema.Types.ObjectId, required: true },
   },
   { timestamps: true }
