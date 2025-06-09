@@ -3,13 +3,13 @@ import favoriteService from '../services/favoriteService.js';
 const userfavorite = async (req, res) => {
   try {
     const userId = req.user.id; 
-    const { subType, subId } = req.body; 
+    const { subType, subId, action } = req.body; 
 
     if (!subType || !subId) {
       return res.status(400).json({ message: 'subType và subId là bắt buộc' });
     }
 
-    const favorite = await favoriteService.userFavoriteService(userId, subType, subId);
+    const favorite = await favoriteService.userFavoriteService(userId, subType, subId, action);
     return res.status(201).json(favorite);
   } catch (err) {
     if (err.message === 'Favorite already exists') {

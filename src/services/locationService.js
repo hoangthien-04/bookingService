@@ -50,20 +50,20 @@ export const deleteLocationService = async (id) => {
   return;
 };
 
-const getRcmLocationsService = async (city, userId) => {
-  if (!city) return [];
+const getRcmLocationsService = async (cityCode, userId) => {
+  if (!cityCode) return [];
 
   // 1. Tìm maxFavoriteCount của các location trong city
   const [{ maxFavoriteCount } = { maxFavoriteCount: 1 }] =
     await model.location.aggregate([
-      { $match: { "address.city": city } },
+      { $match: { "address.cityCode": cityCode } },
       { $group: { _id: null, maxFavoriteCount: { $max: "$favoriteCount" } } }
     ]);
 
   // 2. Tìm maxBookingCount: số appointment lớn nhất trên mỗi location
   const [{ maxBookingCount } = { maxBookingCount: 1 }] =
     await model.location.aggregate([
-      { $match: { "address.city": city } },
+      { $match: { "address.cityCode": cityCode } },
       {
         $lookup: {
           from: "appointments",
@@ -78,7 +78,7 @@ const getRcmLocationsService = async (city, userId) => {
 
   // 3. Build pipeline
   const pipeline = [
-    { $match: { "address.city": city } },
+    { $match: { "address.cityCode": cityCode } },
 
     // lookup reviews cho subType = 'location'
     {

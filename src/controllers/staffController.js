@@ -12,17 +12,16 @@ const createStaff = async (req, res) => {
   }
 };
 
-
 const getRecommendedtaffs = async (req, res) => {
-  const { city } = req.params;
+  const { cityCode } = req.params;
   const userId = req.user?.id || null;
 
-  if (!city) {
-    return res.status(400).json({ message: "City is required" });
+  if (!cityCode) {
+    return res.status(400).json({ message: "cityCode is required" });
   }
 
   try {
-    const topStaffs = await staffService.getRcmStaffsService(city, userId);
+    const topStaffs = await staffService.getRcmStaffsService(cityCode, userId);
     return res.json(topStaffs);  // Trả về kết quả
   } catch (error) {
     console.error(error);

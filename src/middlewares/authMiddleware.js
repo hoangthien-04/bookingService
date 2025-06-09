@@ -22,7 +22,12 @@ const authenticateToken = async (req, res, next) => {
         return res.sendStatus(403);
       }
       req.user = user;
+<<<<<<< HEAD
       next();
+=======
+      req.token = token;
+      next(); 
+>>>>>>> 7ebc9d9 (done demo)
     });
   } catch (err) {
     return res.status(500).json({ error: "Internal Server Error" });

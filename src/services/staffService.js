@@ -31,194 +31,181 @@ const createStaffService = async (staffData) => {
   return obj;
 };
 
+const getStaffIdsByCityCode = async (cityCode) => {
+  // 1. Từ staffLocation → lookup Location → match city → group lấy distinct staffId
+  const docs = await model.staffLocation.aggregate([
+    {
+      $lookup: {
+        from: 'locations',
+        localField: 'locationId',
+        foreignField: '_id',
+        as: 'location'
+      }
+    },
+    { $unwind: '$location' },
+    { $match: { 'location.address.cityCode': cityCode } },
+    { $group: { _id: '$staffId' } }
+  ]);
+
+  // 2. Trả về mảng ObjectId
+  return docs.map(d => d._id);
+};
+
 // Service để lấy danh sách 16 staff với tiêu chí tính điểm
-const getRcmStaffsService = async (city, userId) => {
+const getRcmStaffsService = async (cityCode, userId) => {
   try {
-    if (!city) return [];
+    if (!cityCode) return [];
+    const staffIds = await getStaffIdsByCityCode(cityCode);
 
-    // 1. Tính maxFavoriteCount
-  const [{ maxFavoriteCount } = { maxFavoriteCount: 1 }] =
-    await model.staff.aggregate([
-      { $match: { "address.city": city } },
-      { $group: { _id: null, maxFavoriteCount: { $max: "$favoriteCount" } } }
-    ]);
-
-  // 2. Tính maxBookingCount
-  const [{ maxBookingCount } = { maxBookingCount: 1 }] =
-    await model.staff.aggregate([
-      { $match: { "address.city": city } },
-      { 
-        $lookup: {
-          from: "appointments",
-          localField: "_id",
-          foreignField: "staffId",
-          as: "appointments"
-        }
-      },
-      { $addFields: { bookingCount: { $size: "$appointments" } } },
-      { $group: { _id: null, maxBookingCount: { $max: "$bookingCount" } } }
-    ]);
-
-  // 3. Các stage của pipeline
-  const pipeline = [
-    { $match: { "address.city": city } },
-
-    // nối reviews
-    {
-      $lookup: {
-        from: "reviews",
-        let: { staffId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$subType", "staff"] },      // chỉ lấy review cho staff
-                  { $eq: ["$subId", "$$staffId"] }     // và subId phải khớp _id của staff
-                ]
-              }
-            }
-          }
-        ],
-        as: "reviews"
-      }
-    },
-
-    // nối appointments
-    {
-      $lookup: {
-        from: "appointments",
-        localField: "_id",
-        foreignField: "staffId",
-        as: "appointments"
-      }
-    },
-
-    // tính averageRating
-    {
-      $addFields: {
-        averageRating: {
-          $cond: [
-            { $gt: [{ $size: "$reviews" }, 0] },
-            {
-              $divide: [
-                { $sum: "$reviews.rate" },
-                { $size: "$reviews" }
-              ]
-            },
-            0
-          ]
-        }
-      }
-    },
-
-    // tính bookingCount
-    {
-      $addFields: {
-        bookingCount: { $size: "$appointments" }
-      }
-    },
-
-    // tính favoriteScore trên thang 0–5
-    {
-      $addFields: {
-        favoriteScore: {
-          $cond: [
-            { $gt: [maxFavoriteCount, 0] },
-            {
-              $multiply: [
-                { $divide: ["$favoriteCount", maxFavoriteCount] },
-                5
-              ]
-            },
-            0
-          ]
-        }
-      }
-    },
-
-    // tính bookingScore trên thang 0–5
-    {
-      $addFields: {
-        bookingScore: {
-          $cond: [
-            { $gt: [maxBookingCount, 0] },
-            {
-              $multiply: [
-                { $divide: ["$bookingCount", maxBookingCount] },
-                5
-              ]
-            },
-            0
-          ]
-        }
-      }
-    },
-
-    // tổng hợp điểm
-    {
-      $addFields: {
-        totalScore: {
-          $add: ["$favoriteScore", "$averageRating", "$bookingScore"]
-        }
-      }
-    },
+    const [{ maxFavoriteCount } = { maxFavoriteCount: 1 }] =
+      await model.staff.aggregate([
+        { $match: { _id: { $in: staffIds } } },
+        { $group: { _id: null, maxFavoriteCount: { $max: '$favoriteCount' } } }
+      ]);
     
-    // optional: xóa mảng lookup không cần thiết
-    { $project: { userFavorites: 0, reviews: 0, appointments: 0 } },
+    const [{ maxBookingCount } = { maxBookingCount: 1 }] =
+      await model.staff.aggregate([
+        { $match: { _id: { $in: staffIds } } },
+        {
+          $lookup: {
+            from: 'appointments',
+            localField: '_id',
+            foreignField: 'staffId',
+            as: 'appointments'
+          }
+        },
+        { $addFields: { bookingCount: { $size: '$appointments' } } },
+        { $group: { _id: null, maxBookingCount: { $max: '$bookingCount' } } }
+      ]);
+    
+    const pipeline = [
+      // 1. Lọc staffId
+      { $match: { _id: { $in: staffIds } } },
 
-    // sắp xếp và giới hạn
-    { $sort: { totalScore: -1 } },
-    { $limit: 16 }
-  ];
-
-  if (userId) {
-    pipeline.push(
+      // 2. Nối reviews để tính averageRating
       {
         $lookup: {
-          from: "favorites",
-          let: { staffId: "$_id" },
+          from: 'reviews',
+          let: { staffId: '$_id' },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
-                    { $eq: ["$subType", "staff"] },
-                    { $eq: ["$subId", "$$staffId"] }
+                    { $eq: ['$subType', 'staff'] },
+                    { $eq: ['$subId', '$$staffId'] }
                   ]
                 }
               }
             }
           ],
-          as: "userFavorites"
+          as: 'reviews'
         }
       },
       {
         $addFields: {
-          isFavorite: { $gt: [{ $size: "$userFavorites" }, 0] }
+          averageRating: {
+            $cond: [
+              { $gt: [{ $size: '$reviews' }, 0] },
+              { $divide: [{ $sum: '$reviews.rate' }, { $size: '$reviews' }] },
+              0
+            ]
+          }
         }
       },
+
+      // 3. Nối appointments để tính bookingCount & bookingScore
       {
-        $project: { userFavorites: 0 }
+        $lookup: {
+          from: 'appointments',
+          localField: '_id',
+          foreignField: 'staffId',
+          as: 'appointments'
+        }
+      },
+      { $addFields: { bookingCount: { $size: '$appointments' } } },
+      {
+        $addFields: {
+          bookingScore: {
+            $cond: [
+              { $gt: [maxBookingCount, 0] },
+              { $multiply: [{ $divide: ['$bookingCount', maxBookingCount] }, 5] },
+              0
+            ]
+          }
+        }
+      },
+
+      // 4. Tính favoriteScore
+      {
+        $addFields: {
+          favoriteScore: {
+            $cond: [
+              { $gt: [maxFavoriteCount, 0] },
+              { $multiply: [{ $divide: ['$favoriteCount', maxFavoriteCount] }, 5] },
+              0
+            ]
+          }
+        }
+      },
+
+      // 5. Tổng hợp totalScore
+      {
+        $addFields: {
+          totalScore: {
+            $add: ['$favoriteScore', '$averageRating', '$bookingScore']
+          }
+        }
       }
+    ];
+
+    // 6. (Tùy chọn) đánh dấu isFavorite nếu user đã login
+    if (userId) {
+      pipeline.push(
+        {
+          $lookup: {
+            from: 'favorites',
+            let: { staffId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$userId', new mongoose.Types.ObjectId(userId)] },
+                      { $eq: ['$subType', 'staff'] },
+                      { $eq: ['$subId', '$$staffId'] }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'userFavorites'
+          }
+        },
+        {
+          $addFields: {
+            isFavorite: { $gt: [{ $size: '$userFavorites' }, 0] }
+          }
+        },
+        { $project: { userFavorites: 0 } }
+      );
+    } else {
+      pipeline.push({ $addFields: { isFavorite: false } });
+    }
+
+    // 7. Sort & Limit
+    pipeline.push(
+      { $sort: { totalScore: -1 } },
+      { $limit: 16 }
     );
-  } else {
-    // Nếu không có userId (chưa login), gán luôn false
-    pipeline.push({
-      $addFields: { isFavorite: false }
-    });
-  }
 
-  // 3. Cuối cùng sort & limit
-  pipeline.push(
-    { $sort: { totalScore: -1 } },
-    { $limit: 16 }
-  );
+    // 8. Chạy aggregation và trả về
+    const staffs = await model.staff.aggregate(pipeline);
+    const result = {
+      _id: staffs._id,
 
-  // 4. Chạy aggregation và trả kết quả
-  const staffs = await model.staff.aggregate(pipeline);
-  return staffs;
+    }
+    return staffs;
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });

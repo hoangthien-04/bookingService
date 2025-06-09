@@ -49,13 +49,13 @@ export const deleteLocation = async (req, res, next) => {
 };
 
 const getRecommendedLocations = async (req, res, next) => {
-  const city   = req.params.city;
+  const cityCode   = req.params.cityCode;
   const userId = req.user?.id || null;
 
-  if (!city) return res.status(400).json({ message: 'City is required' });
+  if (!cityCode) return res.status(400).json({ message: 'CityCode is required' });
 
   try {
-    const list = await locationService.getRcmLocationsService(city, userId);
+    const list = await locationService.getRcmLocationsService(cityCode, userId);
     return res.json(list);
   } catch (err) {
     next(err);

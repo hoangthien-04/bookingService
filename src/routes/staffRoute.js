@@ -7,7 +7,7 @@ const router = express.Router();
 router.post("/", authMiddleware.authenticateToken, staffController.createStaff);
 // API lấy danh sách 16 staff
 router.get(
-  "/top-staffs/:city",
+  "/top-staffs/:cityCode",
   authMiddleware.authenticateOptional,
   staffController.getRecommendedtaffs
 );
