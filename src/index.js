@@ -4,19 +4,27 @@ import cookieParser from "cookie-parser";
 import connectDB from "./configs/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import businessRoute from "./routes/businessRoute.js";
-import userRoutes from "./routes/userRoute.js"
-import staffRoutes from "./routes/staffRoute.js"
-import locationRoutes from "./routes/locationRoute.js"
-import serviceCategoryRoute from "./routes/serviceCategoryRoute.js"
-import serviceRoute from './routes/serviceRoute.js'
-import favoriteRoute from './routes/favoriteRoute.js'
-import appointment from './routes/appointmentRoute.js'
-import review from './routes/reviewRoute.js'
+import userRoutes from "./routes/userRoute.js";
+import staffRoutes from "./routes/staffRoute.js";
+import locationRoutes from "./routes/locationRoute.js";
+import serviceCategoryRoute from "./routes/serviceCategoryRoute.js";
+import serviceRoute from "./routes/serviceRoute.js";
+import favoriteRoute from "./routes/favoriteRoute.js";
+import appointment from "./routes/appointmentRoute.js";
+import review from "./routes/reviewRoute.js";
 import country from "./routes/countryRoute.js";
+
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
+app.use(
+  cors({
+    origin: process.env.URL_REACT, // FE chạy ở đâu thì cho phép ở đó
+    credentials: true, // nếu cần gửi cookie (refresh token)
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -29,16 +37,16 @@ connectDB().catch((err) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use('/api/user', userRoutes);
-app.use("/api/business", businessRoute); 
-app.use('/api/staff', staffRoutes);
-app.use('/api/location', locationRoutes);
-app.use('/api/serviceCategory', serviceCategoryRoute);
-app.use('/api/service', serviceRoute);
-app.use('/api/favorite', favoriteRoute);
-app.use('/api/appointment', appointment);
-app.use('/api/review', review);
-app.use('/api/country', country);
+app.use("/api/user", userRoutes);
+app.use("/api/business", businessRoute);
+app.use("/api/staff", staffRoutes);
+app.use("/api/location", locationRoutes);
+app.use("/api/serviceCategory", serviceCategoryRoute);
+app.use("/api/service", serviceRoute);
+app.use("/api/favorite", favoriteRoute);
+app.use("/api/appointment", appointment);
+app.use("/api/review", review);
+app.use("/api/country", country);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

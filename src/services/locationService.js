@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import model from '../models/index.js';
 import mongoose from 'mongoose';
+=======
+import model from "../models/index.js";
+import mongoose from "mongoose";
+>>>>>>> 83478c3eb82af4d3f0345ac05f2fbc7bf39ac264
 
 const createLocationService = async (locationData) => {
   const { services = [], businessId } = locationData;
@@ -10,15 +15,20 @@ const createLocationService = async (locationData) => {
   }
 
   // 2. Validate serviceId trong services[]
-  const serviceIds = services.map(s => s.serviceId);
-  const existingServices = await model.service.find({
-    _id: { $in: serviceIds }
-  }).select('_id').lean();
+  const serviceIds = services.map((s) => s.serviceId);
+  const existingServices = await model.service
+    .find({
+      _id: { $in: serviceIds },
+    })
+    .select("_id")
+    .lean();
 
   if (existingServices.length !== serviceIds.length) {
-    const foundSet = new Set(existingServices.map(s => s._id.toString()));
-    const missing = serviceIds.filter(id => !foundSet.has(id));
-    throw createError(400, 'Một số dịch vụ không tồn tại', { missingServiceIds: missing });
+    const foundSet = new Set(existingServices.map((s) => s._id.toString()));
+    const missing = serviceIds.filter((id) => !foundSet.has(id));
+    throw createError(400, "Một số dịch vụ không tồn tại", {
+      missingServiceIds: missing,
+    });
   }
 
   // 3. Tạo mới và lưu
@@ -34,20 +44,22 @@ export const getAllLocationsService = async () => {
 
 export const getLocationByIdService = async (id) => {
   const loc = await model.location.findById(id).lean();
-  if (!loc) throw createError(404, 'Location không tìm thấy');
+  if (!loc) throw createError(404, "Location không tìm thấy");
   return loc;
 };
 
 export const updateLocationService = async (id, updateData) => {
   // (bạn có thể tái sử dụng validate như create nếu update services/businessId)
-  const loc = await model.location.findByIdAndUpdate(id, updateData, { new: true }).lean();
-  if (!loc) throw createError(404, 'Location không tìm thấy');
+  const loc = await model.location
+    .findByIdAndUpdate(id, updateData, { new: true })
+    .lean();
+  if (!loc) throw createError(404, "Location không tìm thấy");
   return loc;
 };
 
 export const deleteLocationService = async (id) => {
   const loc = await model.location.findByIdAndDelete(id).lean();
-  if (!loc) throw createError(404, 'Location không tìm thấy');
+  if (!loc) throw createError(404, "Location không tìm thấy");
   return;
 };
 
@@ -58,7 +70,7 @@ const getRcmLocationsService = async (cityCode, userId) => {
   const [{ maxFavoriteCount } = { maxFavoriteCount: 1 }] =
     await model.location.aggregate([
       { $match: { "address.cityCode": cityCode } },
-      { $group: { _id: null, maxFavoriteCount: { $max: "$favoriteCount" } } }
+      { $group: { _id: null, maxFavoriteCount: { $max: "$favoriteCount" } } },
     ]);
 
   // 2. Tìm maxBookingCount: số appointment lớn nhất trên mỗi location
@@ -70,11 +82,11 @@ const getRcmLocationsService = async (cityCode, userId) => {
           from: "appointments",
           localField: "_id",
           foreignField: "serviceLocationId",
-          as: "appointments"
-        }
+          as: "appointments",
+        },
       },
       { $addFields: { bookingCount: { $size: "$appointments" } } },
-      { $group: { _id: null, maxBookingCount: { $max: "$bookingCount" } } }
+      { $group: { _id: null, maxBookingCount: { $max: "$bookingCount" } } },
     ]);
 
   // 3. Build pipeline
@@ -92,14 +104,14 @@ const getRcmLocationsService = async (cityCode, userId) => {
               $expr: {
                 $and: [
                   { $eq: ["$subType", "location"] },
-                  { $eq: ["$subId", "$$locId"] }
-                ]
-              }
-            }
-          }
+                  { $eq: ["$subId", "$$locId"] },
+                ],
+              },
+            },
+          },
         ],
-        as: "reviews"
-      }
+        as: "reviews",
+      },
     },
 
     // lookup appointments trên serviceLocationId
@@ -108,8 +120,8 @@ const getRcmLocationsService = async (cityCode, userId) => {
         from: "appointments",
         localField: "_id",
         foreignField: "serviceLocationId",
-        as: "appointments"
-      }
+        as: "appointments",
+      },
     },
 
     // tính averageRating
@@ -119,10 +131,10 @@ const getRcmLocationsService = async (cityCode, userId) => {
           $cond: [
             { $gt: [{ $size: "$reviews" }, 0] },
             { $divide: [{ $sum: "$reviews.rate" }, { $size: "$reviews" }] },
-            0
-          ]
-        }
-      }
+            0,
+          ],
+        },
+      },
     },
 
     // tính bookingCount
@@ -134,11 +146,13 @@ const getRcmLocationsService = async (cityCode, userId) => {
         favoriteScore: {
           $cond: [
             { $gt: [maxFavoriteCount, 0] },
-            { $multiply: [{ $divide: ["$favoriteCount", maxFavoriteCount] }, 5] },
-            0
-          ]
-        }
-      }
+            {
+              $multiply: [{ $divide: ["$favoriteCount", maxFavoriteCount] }, 5],
+            },
+            0,
+          ],
+        },
+      },
     },
 
     // tính bookingScore 0–5
@@ -148,10 +162,10 @@ const getRcmLocationsService = async (cityCode, userId) => {
           $cond: [
             { $gt: [maxBookingCount, 0] },
             { $multiply: [{ $divide: ["$bookingCount", maxBookingCount] }, 5] },
-            0
-          ]
-        }
-      }
+            0,
+          ],
+        },
+      },
     },
 
     // optional: xóa mảng lookup không cần thiết
@@ -160,9 +174,11 @@ const getRcmLocationsService = async (cityCode, userId) => {
     // tổng hợp điểm
     {
       $addFields: {
-        totalScore: { $add: ["$favoriteScore", "$averageRating", "$bookingScore"] }
-      }
-    }
+        totalScore: {
+          $add: ["$favoriteScore", "$averageRating", "$bookingScore"],
+        },
+      },
+    },
   ];
 
   // 4. Thêm isFavorite / default false
@@ -177,41 +193,42 @@ const getRcmLocationsService = async (cityCode, userId) => {
               $match: {
                 $expr: {
                   $and: [
+<<<<<<< HEAD
                     { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
+=======
+                    { $eq: ["$userId",new mongoose.Types.ObjectId(userId)] },
+>>>>>>> 83478c3eb82af4d3f0345ac05f2fbc7bf39ac264
                     { $eq: ["$subType", "location"] },
-                    { $eq: ["$subId", "$$locId"] }
-                  ]
-                }
-              }
-            }
+                    { $eq: ["$subId", "$$locId"] },
+                  ],
+                },
+              },
+            },
           ],
-          as: "userFavorites"
-        }
+          as: "userFavorites",
+        },
       },
       {
         $addFields: {
-          isFavorite: { $gt: [{ $size: "$userFavorites" }, 0] }
-        }
+          isFavorite: { $gt: [{ $size: "$userFavorites" }, 0] },
+        },
       },
       {
         $project: {
           userFavorites: 0,
           reviews: 0,
-          appointments: 0
-        }
+          appointments: 0,
+        },
       }
     );
   } else {
     pipeline.push({
-      $addFields: { isFavorite: false }
+      $addFields: { isFavorite: false },
     });
   }
 
   // 5. Sort & Limit
-  pipeline.push(
-    { $sort: { totalScore: -1 } },
-    { $limit: 16 }
-  );
+  pipeline.push({ $sort: { totalScore: -1 } }, { $limit: 16 });
 
   // 6. Chạy aggregate và trả
   const locations = await model.location.aggregate(pipeline);
@@ -219,8 +236,8 @@ const getRcmLocationsService = async (cityCode, userId) => {
 };
 
 const locationService = {
-    createLocationService,
-    getRcmLocationsService
+  createLocationService,
+  getRcmLocationsService,
 };
 
-export default locationService
+export default locationService;
