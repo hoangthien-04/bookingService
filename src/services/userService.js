@@ -2,7 +2,7 @@ import model from '../models/index.js';
 
 const findById = async (userId) => {
   try {
-    const user = await model.user.findById(userId);
+    const user = await model.user.findById(userId).select('-password -phone');
     
     if (!user) {
       throw new Error('User not found');

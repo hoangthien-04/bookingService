@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import model from '../models/index.js';
 import mongoose from 'mongoose';
-=======
-import model from "../models/index.js";
-import mongoose from "mongoose";
->>>>>>> 83478c3eb82af4d3f0345ac05f2fbc7bf39ac264
 
 const createLocationService = async (locationData) => {
   const { services = [], businessId } = locationData;
@@ -193,11 +188,7 @@ const getRcmLocationsService = async (cityCode, userId) => {
               $match: {
                 $expr: {
                   $and: [
-<<<<<<< HEAD
-                    { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
-=======
                     { $eq: ["$userId",new mongoose.Types.ObjectId(userId)] },
->>>>>>> 83478c3eb82af4d3f0345ac05f2fbc7bf39ac264
                     { $eq: ["$subType", "location"] },
                     { $eq: ["$subId", "$$locId"] },
                   ],

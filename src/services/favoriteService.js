@@ -15,11 +15,7 @@ const userFavoriteService = async (userId, subType, subId, action) => {
     await model.favorite.create({ userId, subType, subId });
     // tăng counter lên 1
     await _updateFavCount(subType, subId, +1);
-<<<<<<< HEAD
     return { message: 'Liked thành công', status: 200 };
-=======
-    return { message: "Liked thành công", status: 200 };
->>>>>>> 83478c3eb82af4d3f0345ac05f2fbc7bf39ac264
   } else {
     // unlike
     if (!exists) {
@@ -29,11 +25,7 @@ const userFavoriteService = async (userId, subType, subId, action) => {
     await model.favorite.deleteOne({ userId, subType, subId });
     // giảm counter đi 1 (không âm)
     await _updateFavCount(subType, subId, -1);
-<<<<<<< HEAD
     return { message: 'Unliked thành công', status: 200 };
-=======
-    return { message: "Unliked thành công", status: 200 };
->>>>>>> 83478c3eb82af4d3f0345ac05f2fbc7bf39ac264
   }
 };
 
