@@ -20,7 +20,7 @@ dotenv.config();
 
 const app = express();
 const corsOptions = {
-  origin: "https://projectlandingpagefe.vercel.app/",
+  origin: "https://projectlandingpagefe.vercel.app",
   credential: true
 }
 app.use(
