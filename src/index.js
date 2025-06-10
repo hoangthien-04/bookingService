@@ -20,10 +20,7 @@ dotenv.config();
 
 const app = express();
 app.use(
-  cors({
-    origin: process.env.URL_REACT, // FE chạy ở đâu thì cho phép ở đó
-    credentials: true, // nếu cần gửi cookie (refresh token)
-  })
+  cors()
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
