@@ -29,9 +29,25 @@ const getRecommendedtaffs = async (req, res) => {
   }
 };
 
+const getStaffById = async (req, res) => {
+  try {
+    const { staffId } = req.params;
+    const staff = await staffService.getStaffByIdService(staffId);
+    
+    return res.status(200).json(staff);
+  } catch (error) {
+    const status = error.statusCode || 500;
+    return res.status(status).json({
+        status: status,
+        error: error.message || "Lỗi không xác định",
+    });
+  }
+}
+
 const staffController = {
     getRecommendedtaffs,
-    createStaff
+    createStaff,
+    getStaffById
 }
 
 export default staffController;

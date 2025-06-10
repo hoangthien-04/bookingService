@@ -212,9 +212,22 @@ const getRcmStaffsService = async (cityCode, userId) => {
   }
 };
 
+const getStaffByIdService = async (staffId) => {
+  try{
+    const staff = await model.staff.findById(staffId);
+    if(!staff) throw new Error('staff không tồn tại');
+    
+    return staff;
+  } catch (error) {
+    console.error(error);
+    return error;
+  }
+}
+
 const staffService = {
     getRcmStaffsService,
-    createStaffService
+    createStaffService,
+    getStaffByIdService
 }
 
 export default staffService;

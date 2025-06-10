@@ -11,5 +11,6 @@ router.get(
   authMiddleware.authenticateOptional,
   staffController.getRecommendedtaffs
 );
+router.get("/:staffId", staffController.getStaffById);
 
 export default router;

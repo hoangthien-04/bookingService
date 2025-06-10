@@ -50,6 +50,7 @@ const logout = async (req, res) => {
     try {
       const { refreshToken } = req.cookies;
       const accessToken = req.token;
+      console.log(accessToken)
       const userId = req.user.id;
 
     if (!refreshToken) {
