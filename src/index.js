@@ -19,8 +19,12 @@ import cors from "cors";
 dotenv.config();
 
 const app = express();
+const corsOptions = {
+  origin: "https://projectlandingpagefe.vercel.app/",
+  credential: true
+}
 app.use(
-  cors()
+  cors(corsOptions)
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
